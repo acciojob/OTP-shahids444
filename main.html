@@ -1,26 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OTP Verification</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OTP Verification</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    flex-direction: column;
+  }
+  #verification_heading {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+  }
+  #verification_subtext {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+  .code-container {
+    display: flex;
+    gap: 10px;
+  }
+  .code {
+    width: 40px;
+    height: 50px;
+    text-align: center;
+    font-size: 1.5rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .code:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="verification_heading">Verify Your Account</h1>
-    <p id="verification_subtext">Enter the 6-digit code we sent to your email/phone</p>
-    
-    <div class="code-container">
-      <input type="text" maxlength="1" class="code" id="code-1">
-      <input type="text" maxlength="1" class="code" id="code-2">
-      <input type="text" maxlength="1" class="code" id="code-3">
-      <input type="text" maxlength="1" class="code" id="code-4">
-      <input type="text" maxlength="1" class="code" id="code-5">
-      <input type="text" maxlength="1" class="code" id="code-6">
-    </div>
-  </div>
 
-  <script src="script.js"></script>
+<h1 id="verification_heading">Verify Your Account</h1>
+<p id="verification_subtext">Enter the 6-digit OTP sent to your registered mobile number.</p>
+
+<div class="code-container">
+  <input type="text" maxlength="1" class="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+  <input type="text" maxlength="1" class="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+  <input type="text" maxlength="1" class="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+  <input type="text" maxlength="1" class="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+  <input type="text" maxlength="1" class="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+  <input type="text" maxlength="1" class="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" />
+</div>
+
+<script>
+  const inputs = document.querySelectorAll('.code');
+
+  inputs.forEach((input, index) => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        if (input.value) {
+          input.value = '';
+        } else if (index > 0) {
+          inputs[index - 1].focus();
+          inputs[index - 1].value = '';
+        }
+      } else if (e.key.match(/^[0-9]$/)) {
+        // If digit typed, allow input and move focus forward
+        input.value = ''; // Clear existing value to overwrite on input event
+      } else if (e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+        e.preventDefault();
+      }
+    });
+
+    input.addEventListener('input', (e) => {
+      const value = e.target.value;
+      if (!value.match(/^[0-9]$/)) {
+        e.target.value = '';
+        return;
+      }
+      // Move focus forward if not last input
+      if (index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+    });
+
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+      if (!pasteData.match(/^\d+$/)) return; // Ignore non-digits
+      // Fill inputs sequentially with pasted digits
+      for (let i = 0; i < inputs.length; i++) {
+        inputs[i].value = pasteData[i] || '';
+      }
+      // Focus the next empty input or last
+      for (let i = 0; i < inputs.length; i++) {
+        if (!inputs[i].value) {
+          inputs[i].focus();
+          return;
+        }
+      }
+      inputs[inputs.length - 1].focus();
+    });
+  });
+</script>
+
 </body>
 </html>
